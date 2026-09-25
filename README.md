@@ -1,2 +1,1 @@
-# leaderboard-
-Gamingleaderboard with docker swarm
+docker swarm join --token SWMTKN-1-0z3e6zcs2m188g4yap4u2b71c3xnwef569nnsjjdd93torjewq-3mkqlllwtp1teot55cap3mpw7 192.168.178.60:2377.
