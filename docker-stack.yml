@@ -1,7 +1,46 @@
-FROM python:3.12-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-COPY app.py .
-EXPOSE 5000
-CMD ["python", "app.py"]
+version: "3.8"
+
+services:
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    networks:
+      - backend
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+
+  api:
+    image: leaderboard-api:1.0
+    environment:
+      - REDIS_HOST=redis
+    ports:
+      - "8080:5000"
+    networks:
+      - backend
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+
+  worker:
+    image: leaderboard-worker:1.0
+    environment:
+      - REDIS_HOST=redis
+    networks:
+      - backend
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+
+networks:
+  backend:
+    driver: overlay
+
+volumes:
+  redis-data:
